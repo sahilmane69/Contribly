@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "../../../auth";
-import { signOutUser } from "@/app/actions/auth";
+import { PlanBadge } from "@/components/billing/plan-badge";
+import { UpgradeButton } from "@/components/billing/upgrade-button";
+import { UserAccountMenu } from "@/components/billing/user-account-menu";
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import { NumberTicker } from "@/components/magicui/number-ticker";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
@@ -15,7 +17,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getSkillProfile } from "@/lib/supabase-admin";
+import {
+  getPlanLabel,
+  getRemainingAiCredits,
+  normalizePlan,
+} from "@/lib/billing";
+import { getBillingProfile, getSkillProfile } from "@/lib/supabase-admin";
 
 type StoredSkill = {
   name: string;
@@ -31,7 +38,11 @@ export default async function DashboardPage() {
   }
 
   const avatar = session.user.avatar ?? session.user.image;
-  const profile = await getSkillProfile(session.user.githubId);
+  const [profile, billingProfile] = await Promise.all([
+    getSkillProfile(session.user.githubId),
+    getBillingProfile(session.user.githubId),
+  ]);
+  const plan = normalizePlan(billingProfile.plan);
 
   if (!profile) {
     return (
@@ -79,7 +90,7 @@ export default async function DashboardPage() {
               </h1>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild>
               <Link href="/repositories">Explore repositories</Link>
             </Button>
@@ -89,15 +100,43 @@ export default async function DashboardPage() {
             <Button asChild variant="outline">
               <Link href="/analytics">Analytics</Link>
             </Button>
-            <form action={signOutUser}>
-              <Button type="submit" variant="outline">
-                Sign out
-              </Button>
-            </form>
+            <UserAccountMenu
+              avatar={avatar}
+              name={session.user.name}
+              plan={plan}
+              username={session.user.username}
+            />
           </div>
         </div>
 
         <BentoGrid>
+          <BentoCard className="lg:col-span-2">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Current Plan</p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-normal">
+                  {getPlanLabel(plan)}
+                </h2>
+              </div>
+              <PlanBadge plan={plan} />
+            </div>
+            {plan === "free" ? (
+              <div className="mt-6 rounded-md border bg-background/50 p-4">
+                <p className="text-sm text-muted-foreground">
+                  AI recommendations remaining
+                </p>
+                <p className="mt-2 font-mono text-4xl font-semibold">
+                  <NumberTicker value={getRemainingAiCredits(billingProfile) ?? 0} />
+                </p>
+                <UpgradeButton plan={plan} className="mt-5 w-full" />
+              </div>
+            ) : (
+              <p className="mt-6 text-sm leading-6 text-muted-foreground">
+                Premium AI workflows are active for this account.
+              </p>
+            )}
+          </BentoCard>
+
           <BentoCard className="lg:col-span-2">
             <p className="text-sm text-muted-foreground">Expertise score</p>
             <div className="mt-3 flex items-end gap-2">

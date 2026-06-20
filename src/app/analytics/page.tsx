@@ -21,6 +21,7 @@ import {
   createContributionAnalytics,
   type ContributionAnalytics,
 } from "@/lib/contribution-analytics";
+import { hasPlanAccess, normalizePlan } from "@/lib/billing";
 import { getSkillProfile } from "@/lib/supabase-admin";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,10 @@ export default async function AnalyticsPage() {
 
   if (!session?.user?.githubId) {
     redirect("/");
+  }
+
+  if (!hasPlanAccess(normalizePlan(session.user.plan), "pro")) {
+    redirect("/pricing");
   }
 
   const profile = await getSkillProfile(session.user.githubId);

@@ -1,5 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
+import {
+  normalizePlan,
+  type BillingProfile,
+  type PlanRole,
+} from "@/lib/billing";
 import type { GitHubAnalysisInput } from "@/lib/github-analysis";
 import type { SkillProfile } from "@/lib/skill-profile";
 
@@ -96,6 +101,188 @@ export async function getSkillProfile(githubId: string) {
   }
 
   return data;
+}
+
+export async function getBillingProfile(
+  githubId: string,
+): Promise<BillingProfile> {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(
+      "plan,subscription_status,current_period_end,stripe_customer_id",
+    )
+    .eq("github_id", githubId)
+    .maybeSingle();
+
+  if (error) {
+    if (
+      error.message.includes("plan") ||
+      error.message.includes("subscription_status") ||
+      error.message.includes("stripe_customer_id")
+    ) {
+      return {
+        plan: "free",
+        subscriptionStatus: "inactive",
+        currentPeriodEnd: null,
+        stripeCustomerId: null,
+        aiRecommendationLimit: 20,
+        aiRecommendationsUsed: 0,
+      };
+    }
+
+    throw new Error(`Failed to load billing profile: ${error.message}`);
+  }
+
+  const plan = normalizePlan(data?.plan);
+
+  return {
+    plan,
+    subscriptionStatus: data?.subscription_status ?? "inactive",
+    currentPeriodEnd: data?.current_period_end ?? null,
+    stripeCustomerId: data?.stripe_customer_id ?? null,
+    aiRecommendationLimit: plan === "free" ? 20 : null,
+    aiRecommendationsUsed: 0,
+  };
+}
+
+export async function updateStripeCustomerId({
+  githubId,
+  stripeCustomerId,
+}: {
+  githubId: string;
+  stripeCustomerId: string;
+}) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      stripe_customer_id: stripeCustomerId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("github_id", githubId);
+
+  if (error) {
+    throw new Error(`Failed to update Stripe customer id: ${error.message}`);
+  }
+}
+
+export async function getProfileByStripeCustomerId(stripeCustomerId: string) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("github_id")
+    .eq("stripe_customer_id", stripeCustomerId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load Stripe customer profile: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function upsertSubscription({
+  cancelAtPeriodEnd,
+  currentPeriodEnd,
+  currentPeriodStart,
+  githubId,
+  plan,
+  status,
+  stripeCustomerId,
+  stripePriceId,
+  stripeSubscriptionId,
+}: {
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: string | null;
+  currentPeriodStart: string | null;
+  githubId: string;
+  plan: PlanRole;
+  status: string;
+  stripeCustomerId: string | null;
+  stripePriceId: string | null;
+  stripeSubscriptionId: string;
+}) {
+  const supabase = getSupabaseAdmin();
+
+  const activePlan =
+    status === "active" || status === "trialing" ? plan : ("free" as const);
+
+  const { error: subscriptionError } = await supabase
+    .from("subscriptions")
+    .upsert(
+      {
+        github_id: githubId,
+        plan,
+        status,
+        stripe_customer_id: stripeCustomerId,
+        stripe_subscription_id: stripeSubscriptionId,
+        stripe_price_id: stripePriceId,
+        current_period_start: currentPeriodStart,
+        current_period_end: currentPeriodEnd,
+        cancel_at_period_end: cancelAtPeriodEnd,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "stripe_subscription_id" },
+    );
+
+  if (subscriptionError) {
+    throw new Error(
+      `Failed to upsert subscription: ${subscriptionError.message}`,
+    );
+  }
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({
+      plan: activePlan,
+      subscription_status: status,
+      current_period_end: currentPeriodEnd,
+      stripe_customer_id: stripeCustomerId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("github_id", githubId);
+
+  if (profileError) {
+    throw new Error(`Failed to update billing profile: ${profileError.message}`);
+  }
+}
+
+export async function recordBillingEvent({
+  eventType,
+  githubId,
+  payload,
+  plan,
+  status,
+  stripeEventId,
+}: {
+  eventType: string;
+  githubId: string | null;
+  payload: unknown;
+  plan: PlanRole | null;
+  status: string | null;
+  stripeEventId: string;
+}) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase.from("billing_events").upsert(
+    {
+      github_id: githubId,
+      stripe_event_id: stripeEventId,
+      event_type: eventType,
+      plan,
+      status,
+      payload,
+    },
+    { onConflict: "stripe_event_id" },
+  );
+
+  if (error) {
+    throw new Error(`Failed to record billing event: ${error.message}`);
+  }
 }
 
 export async function getRepositoryFollows(githubId: string) {

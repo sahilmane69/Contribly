@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
+import { NextResponse } from "next/server";
 
-import { upsertGitHubProfile } from "@/lib/supabase-admin";
+import { getBillingProfile, upsertGitHubProfile } from "@/lib/supabase-admin";
 
 type GitHubProfile = {
   id?: number | string;
@@ -59,6 +60,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.bio = githubProfile?.bio ?? null;
       }
 
+      if (typeof token.githubId === "string") {
+        try {
+          const billingProfile = await getBillingProfile(token.githubId);
+          token.plan = billingProfile.plan;
+          token.subscriptionStatus = billingProfile.subscriptionStatus;
+        } catch {
+          token.plan = "free";
+          token.subscriptionStatus = "inactive";
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -73,12 +85,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.avatar =
         typeof token.avatar === "string" ? token.avatar : session.user.image ?? null;
       session.user.bio = typeof token.bio === "string" ? token.bio : null;
+      session.user.plan =
+        token.plan === "pro" || token.plan === "team" ? token.plan : "free";
+      session.user.subscriptionStatus =
+        typeof token.subscriptionStatus === "string"
+          ? token.subscriptionStatus
+          : "inactive";
 
       return session;
     },
     authorized({ auth, request }) {
       const pathname = request.nextUrl.pathname;
       const isAuthenticated = Boolean(auth?.user);
+      const plan = auth?.user?.plan;
       const isProtected =
         pathname.startsWith("/dashboard") ||
         pathname.startsWith("/onboarding") ||
@@ -87,6 +106,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         pathname.startsWith("/analytics");
 
       if (!isProtected) return true;
+      if (!isAuthenticated) return false;
+      if (
+        pathname.startsWith("/analytics") &&
+        plan !== "pro" &&
+        plan !== "team"
+      ) {
+        return NextResponse.redirect(new URL("/pricing", request.nextUrl));
+      }
+
       return isAuthenticated;
     },
   },

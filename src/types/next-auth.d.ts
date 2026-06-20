@@ -8,6 +8,8 @@ declare module "next-auth" {
       username?: string | null;
       avatar?: string | null;
       bio?: string | null;
+      plan?: "free" | "pro" | "team";
+      subscriptionStatus?: string;
     } & DefaultSession["user"];
   }
 }
@@ -19,5 +21,7 @@ declare module "next-auth/jwt" {
     username?: string | null;
     avatar?: string | null;
     bio?: string | null;
+    plan?: "free" | "pro" | "team";
+    subscriptionStatus?: string;
   }
 }

@@ -2,17 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { auth } from "../../auth";
-import { signOutUser } from "@/app/actions/auth";
+import { UserAccountMenu } from "@/components/billing/user-account-menu";
+import { normalizePlan } from "@/lib/billing";
 
 const navItems = [
   { label: "About", href: "#about" },
   { label: "Docs", href: "#docs" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 export async function LandingNavbar() {
   const session = await auth();
   const avatar = session?.user?.avatar ?? session?.user?.image;
+  const plan = normalizePlan(session?.user?.plan);
 
   return (
     <header className="fixed inset-x-0 top-4 z-40 px-4">
@@ -39,47 +41,12 @@ export async function LandingNavbar() {
               </Link>
             ))}
             {session?.user ? (
-              <details className="group relative shrink-0">
-                <summary className="flex size-10 cursor-pointer list-none items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-white text-black transition hover:opacity-85 [&::-webkit-details-marker]:hidden">
-                  {avatar ? (
-                    <Image
-                      src={avatar}
-                      alt={session.user.name ?? "GitHub avatar"}
-                      width={40}
-                      height={40}
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xs font-black">
-                      {(session.user.name ?? session.user.username ?? "U").slice(0, 1)}
-                    </span>
-                  )}
-                </summary>
-                <div className="absolute right-0 top-12 w-48 rounded-lg border border-white/10 bg-black p-2 text-sm shadow-2xl">
-                  <div className="px-3 py-2">
-                    <p className="truncate font-medium text-white">
-                      {session.user.name ?? session.user.username}
-                    </p>
-                    <p className="truncate text-xs text-white/55">
-                      @{session.user.username ?? "github-user"}
-                    </p>
-                  </div>
-                  <Link
-                    href="/dashboard"
-                    className="block rounded-md px-3 py-2 text-white/80 transition hover:bg-white hover:text-black"
-                  >
-                    Dashboard
-                  </Link>
-                  <form action={signOutUser}>
-                    <button
-                      type="submit"
-                      className="w-full rounded-md px-3 py-2 text-left text-white/80 transition hover:bg-white hover:text-black"
-                    >
-                      Sign out
-                    </button>
-                  </form>
-                </div>
-              </details>
+              <UserAccountMenu
+                avatar={avatar}
+                name={session.user.name}
+                plan={plan}
+                username={session.user.username}
+              />
             ) : (
               <Link href="/sign-in/github" className="simple-nav-link">
                 <span>Sign in</span>
