@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Contribly",
-  description: "A premium AI SaaS foundation for contribution workflows.",
+  title: "Contribly | Find. Contribute. Merge.",
+  description:
+    "AI-powered Open Source Copilot that helps developers discover, understand and contribute to open-source projects faster.",
 };
 
 export default function RootLayout({
