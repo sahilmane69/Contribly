@@ -9,7 +9,6 @@ import {
 
 import { AsciiBackground } from "@/components/ascii-background";
 import { LandingNavbar } from "@/components/landing-navbar";
-import { signInWithGitHub } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -57,12 +56,12 @@ export default function Home() {
             understand and contribute to open-source projects faster.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <form action={signInWithGitHub}>
-              <Button type="submit" className="h-11 px-5">
+            <Button asChild className="h-11 px-5">
+              <a href="/sign-in/github">
                 <GithubMark className="size-4" />
                 Login with GitHub
-              </Button>
-            </form>
+              </a>
+            </Button>
             <Button asChild variant="outline" className="h-11 px-5">
               <a href="#about">
                 Explore features
@@ -129,12 +128,12 @@ export default function Home() {
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground">
           Start with GitHub, find a real issue, and contribute with confidence.
         </p>
-        <form id="signin" action={signInWithGitHub} className="mt-8">
-          <Button type="submit" className="h-11 px-5">
+        <Button asChild className="mt-8 h-11 px-5">
+          <a id="signin" href="/sign-in/github">
             <GithubMark className="size-4" />
             Login with GitHub
-          </Button>
-        </form>
+          </a>
+        </Button>
       </section>
 
       <Footer />
