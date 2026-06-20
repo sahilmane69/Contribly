@@ -103,7 +103,7 @@ a {
   color: var(--foreground);
 }
 
-.watery-nav-link {
+.simple-nav-link {
   position: relative;
   isolation: isolate;
   display: inline-flex;
@@ -121,39 +121,37 @@ a {
   line-height: 1;
   text-transform: uppercase;
   white-space: nowrap;
-  transform-origin: center;
-  will-change: transform;
+  cursor: pointer;
+  transition:
+    color 520ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.watery-nav-link::before {
+.simple-nav-link::before {
   position: absolute;
   inset: 0;
   z-index: 0;
   background: #000000;
   content: "";
   opacity: 0;
-  transition: opacity 180ms ease;
+  transition: opacity 620ms ease;
 }
 
-.watery-nav-link:hover::before,
-.watery-nav-link:focus-visible::before {
+.simple-nav-link:hover,
+.simple-nav-link:focus-visible {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.simple-nav-link:hover::before,
+.simple-nav-link:focus-visible::before {
   opacity: 1;
 }
 
-.water-blob {
-  position: absolute;
+.simple-nav-link span {
+  position: relative;
   z-index: 1;
-  display: block;
-  border-radius: 999px;
-  background: #000000;
-  opacity: 0;
-  transform: scale(0);
-  will-change: transform, opacity;
-}
-
-.water-label {
   display: inline-flex;
-  will-change: transform, color;
 }
 
 @keyframes shimmer {
