@@ -11,6 +11,7 @@ type GitHubRepo = {
 
 type GitHubEvent = {
   type: string;
+  created_at?: string;
   repo?: { name: string };
   payload?: {
     action?: string;
@@ -38,6 +39,7 @@ export type GitHubAnalysisInput = {
     type: string;
     repository: string;
     action: string | null;
+    createdAt: string | null;
   }>;
 };
 
@@ -113,6 +115,7 @@ export async function fetchGitHubAnalysisInput(
     type: event.type,
     repository: event.repo?.name ?? "unknown/repository",
     action: event.payload?.action ?? null,
+    createdAt: event.created_at ?? null,
   }));
 
   return {

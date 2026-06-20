@@ -191,6 +191,40 @@ a {
   }
 }
 
+@keyframes analytics-grow-y {
+  from {
+    height: 0;
+    opacity: 0.45;
+  }
+  to {
+    height: var(--analytics-height);
+    opacity: 1;
+  }
+}
+
+@keyframes analytics-grow-x {
+  from {
+    width: 0;
+    opacity: 0.45;
+  }
+  to {
+    width: var(--analytics-width);
+    opacity: 1;
+  }
+}
+
+.analytics-bar {
+  height: var(--analytics-height);
+  animation: analytics-grow-y 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--analytics-delay);
+}
+
+.analytics-line {
+  width: var(--analytics-width);
+  animation: analytics-grow-x 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--analytics-delay);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

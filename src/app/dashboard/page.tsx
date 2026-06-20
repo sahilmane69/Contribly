@@ -86,6 +86,9 @@ export default async function DashboardPage() {
             <Button asChild variant="outline">
               <Link href="/recommendations">AI issue matches</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link href="/analytics">Analytics</Link>
+            </Button>
             <form action={signOutUser}>
               <Button type="submit" variant="outline">
                 Sign out
