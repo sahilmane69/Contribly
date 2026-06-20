@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 
 import { AsciiBackground } from "@/components/ascii-background";
+import { LandingNavbar } from "@/components/landing-navbar";
+import { signInWithGitHub } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -44,7 +46,7 @@ export default function Home() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-transparent text-foreground">
       <AsciiBackground />
-      <Header />
+      <LandingNavbar />
       <section className="relative z-10 mx-auto flex min-h-[92vh] w-full max-w-5xl flex-col items-center justify-center px-4 pb-20 pt-32 text-center md:px-6 md:pb-28 md:pt-40">
         <div className="flex flex-col items-center">
           <h1 className="max-w-4xl text-5xl font-semibold leading-none tracking-normal md:text-7xl">
@@ -55,14 +57,14 @@ export default function Home() {
             understand and contribute to open-source projects faster.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="h-11 px-5">
-              <a href="#">
+            <form action={signInWithGitHub}>
+              <Button type="submit" className="h-11 px-5">
                 <GithubMark className="size-4" />
                 Login with GitHub
-              </a>
-            </Button>
+              </Button>
+            </form>
             <Button asChild variant="outline" className="h-11 px-5">
-              <a href="#features">
+              <a href="#about">
                 Explore features
                 <ArrowRight className="size-4" />
               </a>
@@ -71,7 +73,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="features" className="relative z-10 mx-auto w-full max-w-7xl px-4 py-20 md:px-6">
+      <section id="about" className="relative z-10 mx-auto w-full max-w-7xl px-4 py-20 md:px-6">
         <SectionTitle
           title="Simple tools for your next contribution."
           description="Contribly keeps the experience small, useful, and friendly."
@@ -91,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-20 md:px-6">
+      <section id="docs" className="relative z-10 mx-auto w-full max-w-7xl px-4 py-20 md:px-6">
         <Card className="bg-card">
           <CardHeader>
             <CardTitle className="text-3xl md:text-4xl">
@@ -119,7 +121,7 @@ export default function Home() {
         </Card>
       </section>
 
-      <section className="relative z-10 mx-auto w-full max-w-4xl px-4 py-24 text-center md:px-6">
+      <section id="pricing" className="relative z-10 mx-auto w-full max-w-4xl px-4 py-24 text-center md:px-6">
         <Sparkles className="mx-auto size-7" />
         <h2 className="mt-6 text-4xl font-semibold leading-tight tracking-normal md:text-6xl">
           Make open source feel welcoming again.
@@ -127,45 +129,16 @@ export default function Home() {
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground">
           Start with GitHub, find a real issue, and contribute with confidence.
         </p>
-        <Button asChild className="mt-8 h-11 px-5">
-          <a href="#">
+        <form id="signin" action={signInWithGitHub} className="mt-8">
+          <Button type="submit" className="h-11 px-5">
             <GithubMark className="size-4" />
             Login with GitHub
-          </a>
-        </Button>
+          </Button>
+        </form>
       </section>
 
       <Footer />
     </main>
-  );
-}
-
-function Header() {
-  return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b bg-background/80 backdrop-blur-xl">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-        <a href="#" className="flex items-center gap-2" aria-label="Contribly home">
-          <span className="flex size-8 items-center justify-center rounded-md border bg-secondary">
-            <Sparkles className="size-4" />
-          </span>
-          <span className="text-sm font-semibold">Contribly</span>
-        </a>
-        <div className="hidden items-center gap-6 md:flex">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground">
-            Features
-          </a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
-            GitHub
-          </a>
-        </div>
-        <Button asChild size="sm">
-          <a href="#">
-            <GithubMark className="size-4" />
-            Login
-          </a>
-        </Button>
-      </nav>
-    </header>
   );
 }
 
