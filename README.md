@@ -1,8 +1,8 @@
-<div align="center">
+<!-- <div align="center"> -->
 
 <img src="./public/assets/contribly-logo.png" width="120" />
 
-# >_ Contribly
+# Contribly
 
 ### Find. Contribute. Merge.
 
@@ -10,7 +10,7 @@ AI-Powered Open Source Copilot
 
 🚀 Live Demo: https://contribly-delta.vercel.app/
 
-</div>
+<!-- </div> -->
 
 ---
 
