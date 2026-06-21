@@ -69,7 +69,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-nohemi);
   --font-mono: var(--font-geist-mono);
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -90,7 +90,7 @@ body {
   overflow-x: hidden;
   background: #050505;
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-nohemi), Arial, Helvetica, sans-serif;
 }
 
 button,

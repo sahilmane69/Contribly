@@ -1,12 +1,60 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { Geist_Mono } from "next/font/google";
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const nohemi = localFont({
+  variable: "--font-nohemi",
+  display: "swap",
+  src: [
+    {
+      path: "../../public/fonts/nohemi/Nohemi-Thin.woff2",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-ExtraLight.woff2",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-ExtraBold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/nohemi/Nohemi-Black.woff2",
+      weight: "900",
+      style: "normal",
+    },
+  ],
 });
 
 const geistMono = Geist_Mono({
@@ -28,7 +76,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark h-full" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-full antialiased`}
+        className={`${nohemi.variable} ${geistMono.variable} min-h-full antialiased`}
       >
         <ThemeProvider>{children}</ThemeProvider>
       </body>
